@@ -1,0 +1,70 @@
+---
+title: "Homework 3"
+author: "Matthew Corne"
+date: 09-11-2024
+format: html
+editor: visual
+---
+
+## Task 1: Control Flow Practice
+
+We characterize the post-treatment (or placebo) blood pressure measurement as optimal (≤ 120), borderline (120 < bp ≤ 130), and high (> 130). To do so, we create a new column in each data frame from the last homework called "status." Then we use a for loop and conditional logic to create the status column's values in each data frame within the list.
+
+
+```{r}
+load("hw2_list.rda")
+
+ for (i in 1:length(bp_list)){
+   for (j in 1:length(bp_list[[i]]$post_bp)){
+     bp_list[[i]]$status[[j]] <- character(length(bp_list[[i]]))
+     if (bp_list[[i]]$post_bp[[j]] <= 120){
+       bp_list[[i]]$status[[j]] = "optimal"
+       }
+     else if ((bp_list[[i]]$post_bp[[j]] > 120) & (bp_list[[i]]$post_bp[[j]] <= 130)){
+       bp_list[[i]]$status[[j]] = "borderline"
+       }
+     else {
+       bp_list[[i]]$status[[j]] = "high"
+     }
+   }
+ }
+
+bp_list
+```
+
+## Task 2: Function Writing
+
+We write a function that is able to take in a list with our treatment and placebo data frames in it, as well as a statistic, which we set as "mean" for a default.
+
+
+```{r}
+# Write a function that takes in a list with two data frames and a statistic as an argument.  Keep the list generic.
+
+hmwk_fn <- function(list, stat="mean") {
+  x <- c(1,5,6)   # remove character columns
+  combo <- c()    # create empty vector for combining results 
+  for (i in 1:length(list)){
+    z <- list[[i]][,c(2,3,4)]
+    comp <- c()  # create empty vector for applying/computing statistic
+    lbl <- c()   # create empty vector for labeling computations
+    for (j in 1:ncol(z)){
+      my_fun <- get(stat)
+      lbl <- c(lbl,paste(names(bp_list)[i], paste(stat, colnames(z)[j], sep = "_"), sep = "_"))
+      comp <- c(comp,my_fun(z[,j]))
+      names(comp) <- lbl
+    }
+    combo <- c(combo,comp)
+  }
+  return(combo)
+}
+
+# Apply the function to the bp_list of data frames. First, use it without specifying the statistic. Then, specify the statistic as "var", "sd", "min", and "max".
+hmwk_fn(bp_list)               # calculates mean
+hmwk_fn(bp_list, stat="var")   # calculates variance
+hmwk_fn(bp_list, stat="sd")    # calculates standard deviation
+hmwk_fn(bp_list, stat="min")   # calculates minimum
+hmwk_fn(bp_list, stat="max")   # calculates maximum
+
+```
+
+As a final remark, there almost certainly a more general way to get at the columns that are numeric versus character, since we cannot calculate summary statistics on the character columns.  This would involve using conditional logic with the type of column in a data frame.  I did not do this, although it would allow more generality with this function.
